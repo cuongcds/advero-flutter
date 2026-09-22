@@ -1,0 +1,24 @@
+name: advero_flutter
+description: >
+  Flutter SDK for publishers to display Advero ads in their apps
+  (Android + iOS). Client-side ad fetching/rendering only.
+version: 0.1.0
+homepage: https://github.com/cuongcds/advero-flutter
+repository: https://github.com/cuongcds/advero-flutter
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  url_launcher: ^6.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
