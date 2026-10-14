@@ -16,7 +16,7 @@ for two different contexts.
 
 ```yaml
 dependencies:
-  advero_flutter: ^0.1.0
+  advero_flutter: ^0.2.0
 ```
 
 ### Via git dependency (available now, before publishing)
@@ -96,6 +96,8 @@ runtime in front of real users.
 | --- | --- | --- |
 | `placementCode` | yes | The placement's code (`propertyCode-randomCode`), copied from the Placements list. Must be supplied by you — no default. Throws `ArgumentError` if empty. |
 | `showPlaceholder` | no | When there's no eligible advertiser creative, the API returns a placeholder ("Advertise here" banner linking to this placement's Marketplace listing) instead of leaving the slot empty. Defaults to `true`. Pass `false` to render nothing in that case instead of the placeholder. |
+| `lazy` | no | When `true`, the ad is only requested once the slot is within ~200 logical pixels of the screen, so ads that are never scrolled to are never served. Defaults to `false`. |
+| `viewer` | no | Signed signal about the user, produced by **your server** (see "Viewer signal" below): `AdveroViewer(expires: ..., token: ..., age: ..., gender: ...)`. Omit it when you do not know the user's age or gender. |
 | `onAdLoaded` | no | Called once a real ad (or an allowed placeholder) has been fetched and is about to be shown. |
 | `onEmpty` | no | Called when there is nothing to display (204, network/parse error, or a placeholder suppressed by `showPlaceholder: false`). |
 
@@ -105,6 +107,8 @@ runtime in front of real users.
   a tappable image (`Image.network`) — tapping opens `click_url` in an
   external browser via `url_launcher`. This also covers the placeholder
   response (`placeholder: true`) unless `showPlaceholder: false` was passed.
+- Advertiser creatives carry a small Advero icon in the top-right corner (like Google's AdChoices badge), loaded from your `baseUrl` (`/assets/images/favicons/favicon_white.png`). Tapping it opens `baseUrl` (the Advero home page) in the external browser; it is a sibling of the creative's tap target, so using it never counts as an ad click. The house placeholder has no badge.
+- **Viewability:** every advertiser ad is measured. Once at least 50% of the widget (30% for very large ads) has been visible — not scrolled out or clipped by an ancestor — for 1 continuous second while the app is in the foreground, the SDK POSTs one beacon to the signed `view_url` of the response, and only such viewable impressions are billed for CPM campaigns. The thresholds come from the server response. The house placeholder is never measured.
 - On `204 No Content`, any network error, or a malformed/unparseable
   response, the widget silently collapses to `SizedBox.shrink()` — this is
   normal (no eligible campaign for that placement right now), not a failure,
@@ -112,6 +116,25 @@ runtime in front of real users.
 - Throws only for integration mistakes: missing/empty `placementCode` at
   construction time, or using `AdveroAdView` before calling
   `AdveroSDK.init()`.
+
+## Viewer signal (optional)
+
+If your app knows the user's age (account profile, age gate) you can pass it so ads are matched to the actual user instead of the placement's declared audience. The signal **must be signed on your server** with the property's signal secret (Advero dashboard, Property settings, "Signal secret"); never put the secret in the app.
+
+```text
+token = HMAC_SHA256_hex( "<placementCode>|<age>|<gender>|<expires>", signalSecret )
+```
+
+`age` and `gender` (`male` / `female`) are empty strings when omitted, `expires` is a unix timestamp at most one hour ahead.
+
+```dart
+AdveroAdView(
+  placementCode: placementCode,
+  viewer: AdveroViewer(age: 34, gender: 'female', expires: 1790000000, token: '...'),
+)
+```
+
+An unsigned, forged or expired signal is ignored. A signal can only narrow who sees an ad: it never lets adult content onto a placement declared for minors. You are responsible for the accuracy of the signal you send.
 
 ## Dependencies
 
