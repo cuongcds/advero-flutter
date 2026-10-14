@@ -142,7 +142,8 @@ class _AdveroAdViewState extends State<AdveroAdView>
       }
     }
 
-    _lazyTimer = Timer.periodic(const Duration(milliseconds: 100), (_) => check());
+    _lazyTimer =
+        Timer.periodic(const Duration(milliseconds: 100), (_) => check());
     return completer.future;
   }
 
@@ -219,7 +220,9 @@ class _AdveroAdViewState extends State<AdveroAdView>
       // Zero until the image has loaded and the widget has a size.
       visibleRatio: () {
         final box = _box;
-        return box == null ? 0 : visibleFraction(box, MediaQuery.of(context).size);
+        return box == null
+            ? 0
+            : visibleFraction(box, MediaQuery.of(context).size);
       },
       isForeground: () => _foreground,
       needRatio: ad.viewRatio,

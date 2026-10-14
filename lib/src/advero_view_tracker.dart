@@ -6,7 +6,8 @@ import 'package:flutter/rendering.dart';
 /// Screen-space rect of [box], or `null` when it isn't laid out/attached.
 Rect? _globalRect(RenderBox box) {
   if (!box.attached || !box.hasSize) return null;
-  return MatrixUtils.transformRect(box.getTransformTo(null), Offset.zero & box.size);
+  return MatrixUtils.transformRect(
+      box.getTransformTo(null), Offset.zero & box.size);
 }
 
 /// Fraction (0–1) of [box] that is actually visible: not scrolled out of, or
@@ -36,7 +37,8 @@ double visibleFraction(RenderBox box, Size screen) {
 /// (ignores ancestor clipping — a not-yet-visible item is exactly what we want).
 bool nearViewport(RenderBox box, Size screen, double margin) {
   if (!box.attached || !box.hasSize) return false;
-  final origin = MatrixUtils.transformPoint(box.getTransformTo(null), Offset.zero);
+  final origin =
+      MatrixUtils.transformPoint(box.getTransformTo(null), Offset.zero);
   final rect = Rect.fromLTWH(
     origin.dx,
     origin.dy,
@@ -72,7 +74,8 @@ class AdveroViewTracker {
   });
 
   void start() {
-    _timer ??= Timer.periodic(const Duration(milliseconds: 100), (_) => _tick());
+    _timer ??=
+        Timer.periodic(const Duration(milliseconds: 100), (_) => _tick());
   }
 
   void stop() {
