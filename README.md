@@ -80,11 +80,12 @@ Use one `AdveroAdView` per ad slot — each slot has its own `placementCode`.
      property it belongs to — a code copied for one property will not serve
      ads for another.
 
-## `AdveroSDK.init({ required String baseUrl })`
+## `AdveroSDK.init({ required String baseUrl, String? appId })`
 
 | Parameter | Required | Description |
 | --- | --- | --- |
 | `baseUrl` | yes | Origin of the Advero ad-serving endpoint, e.g. `https://ads-advero.domain.com`. Must be supplied by you — the SDK does not hardcode or default to any Advero domain. |
+| `appId` | no | Overrides the app identifier sent with every ad request. Defaults to the Android package name / iOS bundle ID, detected automatically. |
 
 Throws an `ArgumentError` immediately if `baseUrl` is missing or empty —
 this is a configuration error meant to be caught during integration, not at
@@ -109,6 +110,7 @@ runtime in front of real users.
   response (`placeholder: true`) unless `showPlaceholder: false` was passed.
 - Advertiser creatives carry a small Advero icon in the top-right corner (like Google's AdChoices badge), loaded from your `baseUrl` (`/assets/images/favicons/favicon_white.png`). Tapping it opens `baseUrl` (the Advero home page) in the external browser; it is a sibling of the creative's tap target, so using it never counts as an ad click. The house placeholder has no badge.
 - **Viewability:** every advertiser ad is measured. Once at least 50% of the widget (30% for very large ads) has been visible — not scrolled out or clipped by an ancestor — for 1 continuous second while the app is in the foreground, the SDK POSTs one beacon to the signed `view_url` of the response, and only such viewable impressions are billed for CPM campaigns. The thresholds come from the server response. The house placeholder is never measured.
+- **App identification:** every request carries the app's Android package name / iOS bundle ID in the `app` parameter. Only an app whose ID is added and verified under the property in the Advero dashboard gets real ads; any other app receives the placeholder.
 - On `204 No Content`, any network error, or a malformed/unparseable
   response, the widget silently collapses to `SizedBox.shrink()` — this is
   normal (no eligible campaign for that placement right now), not a failure,
@@ -140,6 +142,8 @@ An unsigned, forged or expired signal is ignored. A signal can only narrow who s
 
 - [`http`](https://pub.dev/packages/http) — official Dart team package, used
   for the single `GET` request per ad slot.
+- [`package_info_plus`](https://pub.dev/packages/package_info_plus) — reads
+  the app's package name / bundle ID sent as the `app` parameter.
 - [`url_launcher`](https://pub.dev/packages/url_launcher) — opens
   `click_url` in the device's browser/external app on tap.
 - Images are rendered with Flutter's built-in `Image.network`, which already

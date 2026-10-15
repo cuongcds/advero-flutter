@@ -165,12 +165,21 @@ class _AdveroAdViewState extends State<AdveroAdView>
       if (generation != _generation || !mounted) return;
     }
 
+    final appId = await AdveroSDK.resolveAppId();
+    if (generation != _generation || !mounted) return;
+
     var uri = Uri.parse(
       '$baseUrl/ads/serve/${Uri.encodeComponent(widget.placementCode)}',
     );
+    final query = <String, String>{};
+    // The server serves only the placeholder to requests without a verified app's ID.
+    if (appId != null) query['app'] = appId;
     final viewer = widget.viewer;
     if (viewer != null && viewer.token.isNotEmpty && viewer.expires > 0) {
-      uri = uri.replace(queryParameters: viewer.toQuery());
+      query.addAll(viewer.toQuery());
+    }
+    if (query.isNotEmpty) {
+      uri = uri.replace(queryParameters: query);
     }
 
     http.Response response;
