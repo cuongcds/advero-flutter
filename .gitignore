@@ -6,3 +6,5 @@ pubspec.lock
 example/build/
 example/.dart_tool/
 example/.flutter-plugins-dependencies
+
+.idea/
