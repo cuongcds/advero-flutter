@@ -275,7 +275,12 @@ class _AdveroAdViewState extends State<AdveroAdView>
     final image = GestureDetector(
       onTap: () => _open(ad.clickUrl),
       child: Image.network(
-        ad.creativeUrl,
+        ad.displayUrl,
+        // The placeholder PNG is rendered at 2x, so pin it to the ad's
+        // logical size instead of letting it display at its pixel size.
+        width: ad.placeholder && ad.width > 0 ? ad.width.toDouble() : null,
+        height: ad.placeholder && ad.height > 0 ? ad.height.toDouble() : null,
+        fit: BoxFit.fill,
         // A broken creative URL should also collapse to empty rather than
         // showing Flutter's default broken-image icon.
         errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),

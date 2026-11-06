@@ -22,6 +22,10 @@ class AdveroAdResponse {
   /// How long (ms) that fraction must stay in view without interruption.
   final int viewMs;
 
+  /// Ad size in logical pixels; 0 when the server didn't report one.
+  final int width;
+  final int height;
+
   const AdveroAdResponse({
     required this.creativeUrl,
     required this.clickUrl,
@@ -30,7 +34,18 @@ class AdveroAdResponse {
     this.viewUrl,
     this.viewRatio = 0.5,
     this.viewMs = 1000,
+    this.width = 0,
+    this.height = 0,
   });
+
+  /// Flutter's `Image.network` can't decode SVG, so the house placeholder
+  /// (served as SVG by default) is requested as PNG via the `.png` suffix.
+  String get displayUrl {
+    if (placeholder && !creativeUrl.toLowerCase().endsWith('.png')) {
+      return '$creativeUrl.png';
+    }
+    return creativeUrl;
+  }
 
   /// Returns `null` if [json] doesn't have the minimum required fields —
   /// callers treat that the same as "no ad" rather than throwing.
@@ -54,6 +69,8 @@ class AdveroAdResponse {
       viewUrl: viewUrl is String && viewUrl.isNotEmpty ? viewUrl : null,
       viewRatio: viewRatio is num ? viewRatio.toDouble() : 0.5,
       viewMs: viewMs is num ? viewMs.toInt() : 1000,
+      width: json['width'] is num ? (json['width'] as num).toInt() : 0,
+      height: json['height'] is num ? (json['height'] as num).toInt() : 0,
     );
   }
 }
